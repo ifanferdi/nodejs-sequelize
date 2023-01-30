@@ -1,24 +1,18 @@
 const express = require("express");
 const app = express();
 const PORT = 3000;
-const Sequelize = require("sequelize");
+const bodyParser = require("body-parser");
+const product = require("./routes/product.routes");
 
-const sequelize = new Sequelize("rnd_nodejs", "root", "", {
-  host: "localhost",
-  dialect: "mysql",
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.get("/", (req, res) => {
+  res.send("Hallo World");
 });
+
+app.use("/product", product);
 
 app.listen(PORT, () =>
   console.log(`Server running on port: http://localhost:${PORT}`)
 );
-
-async function main() {
-  try {
-    await sequelize.authenticate();
-    console.log("Connection to database has been established successfully.");
-  } catch (error) {
-    console.error("Unable to connect to the database:", error);
-  }
-}
-
-main();
