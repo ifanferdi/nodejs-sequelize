@@ -43,7 +43,11 @@ async function store(req, res) {
 
   Product.create(data)
     .then((product) => {
-      res.status(200).json(productResourceJson(product));
+      res.send({
+        status: 200,
+        message: "Product has been created.",
+        data: productResourceJson(product)
+      });
     })
     .catch((error) => {
       res.send(error.errors[0]);
@@ -67,7 +71,11 @@ async function update(req, res) {
         where: { id: id },
         attributes: ["id", "name", "description"],
       }).then((product) => {
-        res.send(product);
+        res.send({
+          status: 200,
+          message: "Product has been updated.",
+          data: product
+        });
       });
     })
     .catch((error) => {
