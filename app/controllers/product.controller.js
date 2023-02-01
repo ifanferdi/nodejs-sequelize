@@ -75,8 +75,23 @@ async function update(req, res) {
     });
 }
 
+async function destroy(req, res) {
+  const id = req.params.id;
+  await Product.destroy({
+    where: { id: id }
+  }).then(() =>{
+    res.send({
+      status: 200,
+      message: "Product has been deleted."
+    })
+  }).catch((error)=>{
+    res.send(error.errors[0])
+  })
+}
+
 module.exports = {
   index,
   store,
   update,
+  destroy,
 };
