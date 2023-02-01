@@ -1,10 +1,20 @@
 const { Product } = require("../models");
+const productResource = ["id", "name", "description"];
+const productResourceJson = (product) => {
+  return {
+    id: product.id,
+    name: product.name,
+    description: product.description,
+  };
+};
 
-async function index(req, res, next) {
+async function index(req, res) {
   const id = req.query.id;
-  const attributeResource = ["id", "name", "description"];
   if (id != null) {
-    await Product.findByPk(id)
+    Product.findOne({
+      where: { id: id },
+      attributes: ["id", "name", "description"],
+    })
       .then((product) => {
         res.send(product);
       })
@@ -13,7 +23,7 @@ async function index(req, res, next) {
       });
   } else {
     await Product.findAll({
-      // attributes: attributeResource, //if you wan to show just a spesific data
+      attributes: productResource, //if you wan to show just a spesific data
       order: [["name", "desc"]],
     })
       .then((product) => {
@@ -25,15 +35,40 @@ async function index(req, res, next) {
   }
 }
 
-async function store(req, res, next) {
+async function store(req, res) {
   const data = {
     name: req.body.name,
     description: req.body.description,
   };
 
   Product.create(data)
-    .then((result) => {
-      res.status(200).json(result);
+    .then((product) => {
+      res.status(200).json(productResourceJson(product));
+    })
+    .catch((error) => {
+      res.send(error.errors[0]);
+    });
+}
+
+async function update(req, res) {
+  const id = req.params.id;
+  const data = {
+    name: req.body.name,
+    description: req.body.description,
+  };
+
+  await Product.update(data, {
+    where: {
+      id: id,
+    },
+  })
+    .then(() => {
+      Product.findOne({
+        where: { id: id },
+        attributes: ["id", "name", "description"],
+      }).then((product) => {
+        res.send(product);
+      });
     })
     .catch((error) => {
       res.send(error.errors[0]);
@@ -43,4 +78,5 @@ async function store(req, res, next) {
 module.exports = {
   index,
   store,
+  update,
 };
