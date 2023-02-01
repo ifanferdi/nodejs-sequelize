@@ -1,7 +1,7 @@
 const { Product } = require("../models");
 
 async function index(req, res, next) {
-  const id = req.params.id;
+  const id = req.query.id;
   const attributes = ["id", "name", "description"];
   if (id != null) {
     await Product.findByPk(id)
@@ -25,8 +25,22 @@ async function index(req, res, next) {
   }
 }
 
-async function store(req, res, next) {}
+async function store(req, res, next) {
+  const data = {
+    name: req.body.name,
+    description: req.body.description,
+  };
+
+  Product.create(data)
+    .then((result) => {
+      res.status(200).json(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+}
 
 module.exports = {
   index,
+  store,
 };

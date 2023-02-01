@@ -7,12 +7,6 @@ router.get("/", ProductController.index);
 router.get("/:id", ProductController.index);
 
 // Method POST
-router.post("/", ProductController.index);
-router.post("/:id", ProductController.index);
-
-// router
-//   .route("/product/:product_id")
-//   .all(ProductController.index)
-//   .get(ProductController.show);
+router.post("/store", ProductController.store);
 
 module.exports = router;
