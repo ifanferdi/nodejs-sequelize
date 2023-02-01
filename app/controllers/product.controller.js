@@ -2,7 +2,7 @@ const { Product } = require("../models");
 
 async function index(req, res, next) {
   const id = req.query.id;
-  const attributes = ["id", "name", "description"];
+  const attributeResource = ["id", "name", "description"];
   if (id != null) {
     await Product.findByPk(id)
       .then((product) => {
@@ -13,7 +13,7 @@ async function index(req, res, next) {
       });
   } else {
     await Product.findAll({
-      // attributes: attributes, //if you wan to show just a spesific data
+      // attributes: attributeResource, //if you wan to show just a spesific data
       order: [["name", "desc"]],
     })
       .then((product) => {
@@ -36,7 +36,7 @@ async function store(req, res, next) {
       res.status(200).json(result);
     })
     .catch((error) => {
-      res.send(error);
+      res.send(error.errors[0]);
     });
 }
 
