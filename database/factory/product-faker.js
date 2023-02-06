@@ -5,6 +5,7 @@ function ProductFaker(n) {
     return {
       name: faker.faker.name.fullName(),
       description: faker.faker.lorem.words(),
+      category_id: Math.floor(Math.random() * 3) + 1,
     };
   };
 
