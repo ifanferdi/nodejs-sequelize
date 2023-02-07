@@ -54,14 +54,25 @@ async function store(req, res) {
 
   Product.create(data)
     .then((product) => {
-      res.send({
-        status: 200,
-        message: "Product has been created.",
-        data: product,
-      });
+      Product.findByPk(product.id, { include: ["category"] }).then(
+        (product) => {
+          res.send({
+            status: 200,
+            message: "Product has been created.",
+            data: {
+              id: product.id,
+              name: product.name,
+              description: product.description,
+              category: product.category,
+              createdAt: product.createdAt,
+              updatedAt: product.updatedAt,
+            },
+          });
+        }
+      );
     })
     .catch((error) => {
-      res.send(error.errors[0]);
+      res.send(error.errors);
     });
 }
 
@@ -81,11 +92,19 @@ async function update(req, res) {
     .then(() => {
       Product.findOne({
         where: { id: id },
+        include: ["category"],
       }).then((product) => {
         res.send({
           status: 200,
           message: "Product has been updated.",
-          data: product,
+          data: {
+            id: product.id,
+            name: product.name,
+            description: product.description,
+            category: product.category,
+            createdAt: product.createdAt,
+            updatedAt: product.updatedAt,
+          },
         });
       });
     })
