@@ -1,33 +1,43 @@
-const { Product } = require("../models");
-const productResource = ["id", "name", "description"];
-const productResourceJson = (product) => {
-  return {
-    id: product.id,
-    name: product.name,
-    description: product.description,
-  };
-};
-
+const { Product, Category } = require("../models");
 async function index(req, res) {
   const id = req.query.id;
   if (id != null) {
-    Product.findOne({
+    await Product.findOne({
       where: { id: id },
-      attributes: ["id", "name", "description"],
+      // attributes: ["id", "name", "description"],
+      include: ["category"],
     })
       .then((product) => {
-        res.send(product);
+        res.send({
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          category: product.category,
+          createdAt: product.createdAt,
+          updatedAt: product.updatedAt,
+        });
       })
       .catch((error) => {
         res.send(error);
       });
   } else {
     await Product.findAll({
-      attributes: productResource, //if you wan to show just a spesific data
       order: [["name", "desc"]],
+      include: ["category"],
     })
       .then((product) => {
-        res.send(product);
+        res.send(
+          product.map((value) => {
+            return {
+              id: value.id,
+              name: value.name,
+              description: value.description,
+              category: value.category,
+              createdAt: value.createdAt,
+              updatedAt: value.updatedAt,
+            };
+          })
+        );
       })
       .catch((error) => {
         res.send(error);
@@ -38,6 +48,7 @@ async function index(req, res) {
 async function store(req, res) {
   const data = {
     name: req.body.name,
+    category_id: req.body.category_id,
     description: req.body.description,
   };
 
@@ -46,7 +57,7 @@ async function store(req, res) {
       res.send({
         status: 200,
         message: "Product has been created.",
-        data: productResourceJson(product)
+        data: product,
       });
     })
     .catch((error) => {
@@ -58,6 +69,7 @@ async function update(req, res) {
   const id = req.params.id;
   const data = {
     name: req.body.name,
+    category_id: req.body.category_id,
     description: req.body.description,
   };
 
@@ -69,12 +81,11 @@ async function update(req, res) {
     .then(() => {
       Product.findOne({
         where: { id: id },
-        attributes: ["id", "name", "description"],
       }).then((product) => {
         res.send({
           status: 200,
           message: "Product has been updated.",
-          data: product
+          data: product,
         });
       });
     })
@@ -86,15 +97,17 @@ async function update(req, res) {
 async function destroy(req, res) {
   const id = req.params.id;
   await Product.destroy({
-    where: { id: id }
-  }).then(() =>{
-    res.send({
-      status: 200,
-      message: "Product has been deleted."
-    })
-  }).catch((error)=>{
-    res.send(error.errors[0])
+    where: { id: id },
   })
+    .then(() => {
+      res.send({
+        status: 200,
+        message: "Product has been deleted.",
+      });
+    })
+    .catch((error) => {
+      res.send(error.errors[0]);
+    });
 }
 
 module.exports = {
