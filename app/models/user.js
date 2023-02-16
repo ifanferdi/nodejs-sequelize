@@ -16,10 +16,10 @@ module.exports = (sequelize, DataTypes) => {
     {
       fullname: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         validate: {
-          notNull: true,
-          notEmpty: true,
+          notNull: false,
+          notEmpty: false,
           len: [1, 255],
         },
       },
@@ -35,10 +35,10 @@ module.exports = (sequelize, DataTypes) => {
       },
       password: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         validate: {
-          notNull: true,
-          notEmpty: true,
+          notNull: false,
+          notEmpty: false,
           len: [1, 255],
         },
       },

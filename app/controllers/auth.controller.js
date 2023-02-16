@@ -2,6 +2,7 @@ const { User } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const env = process.env;
+const passport = require("passport");
 
 async function login(req, res) {
   const { username, password } = req.body;

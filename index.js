@@ -4,11 +4,25 @@ const PORT = 3000;
 const bodyParser = require("body-parser");
 const product = require("./routes/product.routes");
 const auth = require("./routes/auth.routes");
-require("dotenv").config({ path: "./.env" });
-require("./app/middlewares/passport.middleware");
+const passport = require("passport");
+const session = require("express-session");
+require("dotenv").config();
+require("./app/services/login-auth");
+
+app.use(
+  session({
+    secret: "keyboard cat",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: true },
+  })
+);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.get("/", (req, res) => {
   res.send("Hallo World");
