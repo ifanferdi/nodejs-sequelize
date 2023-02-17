@@ -11,7 +11,7 @@ module.exports = {
         },
         key: "id",
       },
-      after: "description",
+      before: "createdAt",
       allowNull: false,
       onUpdate: "CASCADE",
       onDelete: "CASCADE",

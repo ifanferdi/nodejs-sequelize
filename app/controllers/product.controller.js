@@ -1,4 +1,6 @@
 const { Product, Category } = require("../models");
+const multer = require("multer");
+
 async function index(req, res) {
   const id = req.query.id;
   if (id != null) {
@@ -46,6 +48,11 @@ async function index(req, res) {
 }
 
 async function store(req, res) {
+  console.log(req.files);
+  const image = req.files.map((value, index) => {
+    return value.filename;
+  });
+
   const data = {
     name: req.body.name,
     category_id: req.body.category_id,
