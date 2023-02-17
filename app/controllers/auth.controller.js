@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const env = process.env;
 
-async function login(req, res) {
+async function login(req, res, next) {
   const { username, password } = req.body;
 
   const findUserByUsername = await User.findOne({
@@ -27,7 +27,6 @@ async function login(req, res) {
   const jwtToken = jwt.sign(
     {
       id: findUserByUsername.id,
-      username: findUserByUsername.username,
     },
     env.JWT_SECRET
   );
@@ -44,6 +43,30 @@ async function login(req, res) {
   });
 }
 
+async function logout(req, res, next) {
+  const { token } = req.body;
+
+  const user = await UserAuth.findOne({ where: { token: token } }).catch(
+    (err) => {
+      console.log(err);
+    }
+  );
+  if (!user) {
+    res.status(201).json({
+      message: "Tidak ada sesi data user tersebut.",
+    });
+  } else {
+    UserAuth.destroy({ where: { token: token } }).catch((err) => {
+      console.log(err);
+    });
+
+    res.status(200).json({
+      message: "Logout Sukses",
+    });
+  }
+}
+
 module.exports = {
   login,
+  logout,
 };

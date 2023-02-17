@@ -5,7 +5,6 @@ const bodyParser = require("body-parser");
 const product = require("./routes/product.routes");
 const auth = require("./routes/auth.routes");
 require("dotenv").config({ path: "./.env" });
-require("./app/middlewares/passport.middleware");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
