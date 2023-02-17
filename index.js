@@ -14,6 +14,9 @@ app.get("/", (req, res) => {
   res.send("Hallo World");
 });
 
+// Middleware
+require("./app/middlewares/passport.middleware");
+
 app.use("/auth", auth);
 app.use("/product", product);
 

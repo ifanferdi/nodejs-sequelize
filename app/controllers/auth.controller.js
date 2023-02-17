@@ -1,4 +1,4 @@
-const { User } = require("../models");
+const { User, UserAuth } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const env = process.env;
@@ -31,6 +31,12 @@ async function login(req, res) {
     },
     env.JWT_SECRET
   );
+
+  await UserAuth.create({
+    user_id: findUserByUsername.id,
+    token: jwtToken,
+  });
+  console.log(req);
 
   res.json({
     message: "Login Success",
