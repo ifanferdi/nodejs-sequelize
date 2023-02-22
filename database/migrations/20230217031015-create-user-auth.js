@@ -26,7 +26,7 @@ module.exports = {
       },
       meta: {
         type: Sequelize.JSON,
-        allowNull: false,
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,
