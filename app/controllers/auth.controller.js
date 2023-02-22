@@ -1,8 +1,9 @@
 const { User, UserAuth } = require("../models");
+const { detect: browser } = require("detect-browser");
+const tokenGenerate = require("../services/tokenGenerate");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const env = process.env;
-const { detect: browser } = require("detect-browser");
 
 async function login(req, res, next) {
   var username, password;
@@ -35,22 +36,18 @@ async function login(req, res, next) {
     return res.json({ message: "Wrong password." });
   }
 
-  const jwtToken = jwt.sign(
-    {
-      id: findUserByUsername.id,
-    },
-    env.JWT_SECRET
-  );
+  const token = tokenGenerate();
+  console.log(token);
 
   await UserAuth.create({
     user_id: findUserByUsername.id,
-    token: jwtToken,
+    token: token,
     meta: browser(req.headers["user-agent"]),
   });
 
   res.json({
     message: "Login Success",
-    token: jwtToken,
+    token: token,
   });
 }
 

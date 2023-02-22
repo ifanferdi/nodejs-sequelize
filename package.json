@@ -24,6 +24,7 @@
     "mysql2": "^3.0.1",
     "passport": "^0.6.0",
     "passport-auth-token": "^1.0.1",
+    "passport-http-bearer": "^1.0.1",
     "passport-jwt": "^4.0.1",
     "sequelize": "^6.28.0"
   },
