@@ -17,6 +17,7 @@ app.use(
     cookie: { secure: true },
   })
 );
+require("dotenv").config({ path: "./.env" });
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -27,6 +28,11 @@ app.use(passport.session());
 app.get("/", (req, res) => {
   res.send("Hallo World");
 });
+
+// Middleware
+require("./app/middlewares/passport.middleware");
+
+app.use("/public", express.static("public"));
 
 app.use("/auth", auth);
 app.use("/product", product);

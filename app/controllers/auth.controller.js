@@ -1,11 +1,23 @@
-const { User } = require("../models");
+const { User, UserAuth } = require("../models");
+const { detect: browser } = require("detect-browser");
+const tokenGenerate = require("../services/tokenGenerate");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const env = process.env;
 const passport = require("passport");
 
-async function login(req, res) {
-  const { username, password } = req.body;
+async function login(req, res, next) {
+  var username, password;
+  if (req.body.username !== undefined && req.body.password !== undefined) {
+    username = req.body.username;
+    password = req.body.password;
+  } else if (
+    req.query.username !== undefined &&
+    req.query.password !== undefined
+  ) {
+    username = req.query.username;
+    password = req.query.password;
+  }
 
   const findUserByUsername = await User.findOne({
     where: { username: username },
@@ -25,20 +37,45 @@ async function login(req, res) {
     return res.json({ message: "Wrong password." });
   }
 
-  const jwtToken = jwt.sign(
-    {
-      id: findUserByUsername.id,
-      username: findUserByUsername.username,
-    },
-    env.JWT_SECRET
-  );
+  const token = tokenGenerate();
+  console.log(token);
+
+  await UserAuth.create({
+    user_id: findUserByUsername.id,
+    token: token,
+    meta: browser(req.headers["user-agent"]),
+  });
 
   res.json({
     message: "Login Success",
-    token: jwtToken,
+    token: token,
   });
+}
+
+async function logout(req, res, next) {
+  const { token } = req.body;
+
+  const user = await UserAuth.findOne({ where: { token: token } }).catch(
+    (err) => {
+      console.log(err);
+    }
+  );
+  if (!user) {
+    res.status(201).json({
+      message: "Tidak ada sesi data user tersebut.",
+    });
+  } else {
+    UserAuth.destroy({ where: { token: token } }).catch((err) => {
+      console.log(err);
+    });
+
+    res.status(200).json({
+      message: "Logout Sukses",
+    });
+  }
 }
 
 module.exports = {
   login,
+  logout,
 };
