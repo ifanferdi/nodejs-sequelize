@@ -1,4 +1,6 @@
-const { Product, Category } = require("../models");
+const { Product } = require("../models");
+const fs = require("fs");
+
 async function index(req, res) {
   const id = req.query.id;
   if (id != null) {
@@ -12,6 +14,7 @@ async function index(req, res) {
           id: product.id,
           name: product.name,
           description: product.description,
+          image: product.image,
           category: product.category,
           createdAt: product.createdAt,
           updatedAt: product.updatedAt,
@@ -20,21 +23,22 @@ async function index(req, res) {
       .catch((error) => {
         res.send(error);
       });
-  } else {
+  } else if (!req.query.id) {
     await Product.findAll({
-      order: [["name", "desc"]],
+      order: [["id", "desc"]],
       include: ["category"],
     })
-      .then((product) => {
+      .then((products) => {
         res.send(
-          product.map((value) => {
+          products.map((product) => {
             return {
-              id: value.id,
-              name: value.name,
-              description: value.description,
-              category: value.category,
-              createdAt: value.createdAt,
-              updatedAt: value.updatedAt,
+              id: product.id,
+              name: product.name,
+              description: product.description,
+              image: product.image,
+              category: product.category,
+              createdAt: product.createdAt,
+              updatedAt: product.updatedAt,
             };
           })
         );
@@ -50,6 +54,7 @@ async function store(req, res) {
     name: req.body.name,
     category_id: req.body.category_id,
     description: req.body.description,
+    image: req.file.path,
   };
 
   Product.create(data)
@@ -63,6 +68,7 @@ async function store(req, res) {
               id: product.id,
               name: product.name,
               description: product.description,
+              image: product.image,
               category: product.category,
               createdAt: product.createdAt,
               updatedAt: product.updatedAt,
@@ -78,11 +84,16 @@ async function store(req, res) {
 
 async function update(req, res) {
   const id = req.params.id;
+  const oldProduct = await Product.findByPk(id).catch((error) => {
+    res.send(error);
+  });
   const data = {
     name: req.body.name,
     category_id: req.body.category_id,
     description: req.body.description,
+    image: req.file.path,
   };
+  console.log(data);
 
   await Product.update(data, {
     where: {
@@ -90,6 +101,10 @@ async function update(req, res) {
     },
   })
     .then(() => {
+      if (oldProduct.image != null) {
+        fs.unlinkSync(oldProduct.image);
+      }
+
       Product.findOne({
         where: { id: id },
         include: ["category"],
@@ -101,6 +116,7 @@ async function update(req, res) {
             id: product.id,
             name: product.name,
             description: product.description,
+            image: product.image,
             category: product.category,
             createdAt: product.createdAt,
             updatedAt: product.updatedAt,
@@ -109,12 +125,19 @@ async function update(req, res) {
       });
     })
     .catch((error) => {
-      res.send(error.errors[0]);
+      res.send(error.errors);
     });
 }
 
 async function destroy(req, res) {
   const id = req.params.id;
+  const product = await Product.findByPk(id).catch((error) => {
+    res.send(error);
+  });
+
+  // For delete and old image
+  fs.unlinkSync(product.image);
+
   await Product.destroy({
     where: { id: id },
   })

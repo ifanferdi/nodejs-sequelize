@@ -16,6 +16,8 @@ app.get("/", (req, res) => {
 // Middleware
 require("./app/middlewares/passport.middleware");
 
+app.use("/public", express.static("public"));
+
 app.use("/auth", auth);
 app.use("/product", product);
 
