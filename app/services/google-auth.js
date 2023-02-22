@@ -1,7 +1,6 @@
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const { User } = require("../models");
-const { json, response } = require("express");
 require("dotenv").config();
 const env = process.env;
 
@@ -14,41 +13,34 @@ passport.use(
       passReqToCallback: true,
     },
     async (req, accessToken, refreshToken, profile, cb) => {
-      console.log(profile);
       const user = {
         fullname: profile.displayName,
-        username: profile.emails[0],
+        username: profile.emails[0].value,
         password: null,
       };
-      var dataUser = User.findOne({
+      let dataUser = await User.findOne({
         where: { username: user.username },
       }).catch((err) => {
-        console.log(err);
+        return cb(err);
       });
 
       if (!dataUser) {
-        dataUser = User.create(user).catch((err) => {
-          console.log(err);
-          cb(err, null);
+        dataUser = await User.create(user).catch((err) => {
+          return cb(err, null);
         });
       }
 
-      if (dataUser) return cb(null, dataUser);
+      if (dataUser) {
+        return cb(null, dataUser);
+      }
     }
   )
 );
 
-passport.serializeUser((user, cb) => {
-  console.log("Serializing user: ", user);
-  cb(null, user.id);
+passport.serializeUser(function (user, done) {
+  done(null, user);
 });
 
-passport.deserializeUser(async (id, cb) => {
-  const dataUser = User.findOne({
-    where: { username: user.username },
-  }).catch((err) => {
-    console.log("Error deserializing: ", err);
-    cb(err, null);
-  });
-  if (dataUser) cb(null, user);
+passport.deserializeUser(function (user, done) {
+  done(null, user);
 });

@@ -2,9 +2,6 @@ const { User, UserAuth } = require("../models");
 const { detect: browser } = require("detect-browser");
 const tokenGenerate = require("../services/tokenGenerate");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const env = process.env;
-const passport = require("passport");
 
 async function login(req, res, next) {
   var username, password;
@@ -22,7 +19,7 @@ async function login(req, res, next) {
   const findUserByUsername = await User.findOne({
     where: { username: username },
   }).catch((err) => {
-    console.log("Error: ".err);
+    console.log("Error: " + err);
   });
 
   if (!findUserByUsername) {
@@ -38,12 +35,14 @@ async function login(req, res, next) {
   }
 
   const token = tokenGenerate();
-  console.log(token);
 
   await UserAuth.create({
     user_id: findUserByUsername.id,
     token: token,
-    meta: browser(req.headers["user-agent"]),
+    meta: {
+      location: browser(req.headers["user-agent"]),
+      provider: "local",
+    },
   });
 
   res.json({
